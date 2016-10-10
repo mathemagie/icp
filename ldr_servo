@@ -1,0 +1,24 @@
+int sensorPin = A0; // select the input pin for ldr
+int sensorValue = 0; // variable to store the value coming from the sensor
+
+#include <Servo.h>
+
+Servo monServo;
+
+void setup() {
+  Serial.begin(9600); //sets serial port for communication
+  monServo.attach(9); 
+}
+
+void loop() {
+  sensorValue = analogRead(sensorPin); // read the value from the sensor
+  Serial.println(sensorValue); //prints the values coming from the sensor on the screen
+  delay(100);
+
+  if (sensorValue > 700) {
+     monServo.write(0);
+    delay(2000);  // wait 5 seconds before you do it again
+    monServo.write(180);
+  }
+ 
+}
