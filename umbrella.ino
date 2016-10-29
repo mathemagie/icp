@@ -1,51 +1,68 @@
-#include <Process.h>
+/*
+  Yún HTTP Client
+
+ This example for the YunShield/Yún shows how create a basic
+ HTTP client that connects to the internet and downloads
+ content. In this case, you'll connect to the Arduino
+ website and download a version of the logo as ASCII text.
+
+ created by Tom igoe
+ May 2013
+
+ This example code is in the public domain.
+
+ http://www.arduino.cc/en/Tutorial/HttpClient
+
+ */
+
 #include <Bridge.h>
+#include <HttpClient.h>
 #include <Servo.h>
 
-const int ledPin = 13; 
-
+String res = "";
 Servo monServo;
 
 void setup() {
-  Bridge.begin();   // Initialize the Bridge
-   pinMode(ledPin, OUTPUT);
+  // Bridge takes about two seconds to start up
+  // it can be helpful to use the on-board LED
+  // as an indicator for when it has initialized
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
+  Bridge.begin();
+  digitalWrite(13, HIGH);
+
+  SerialUSB.begin(9600);
    monServo.attach(9); 
-    Serial.begin(9600);
+
+  while (!SerialUSB); // wait for a serial connection
 }
 
 void loop() {
-  
-   
-  Process p;
-  // This command line runs the WifiStatus script, (/usr/bin/pretty-wifi-info.lua), then 
-  // sends the result to the grep command to look for a line containing the word
-  // "Signal:"  the result is passed to this sketch:
-  p.runShellCommand("/usr/bin/curl 'http://api.littleumbrella.io/v2/?id_parapluie=1'");
-  Serial.println("run curl");
+  // Initialize the client library
+  HttpClient client;
 
-  // do nothing until the process finishes, so you get the whole output:
-  while(p.running());  
+  // Make a HTTP request:
+  client.get("http://mathemagie.net/asciilogo.txt");
 
-  // Read command output. runShellCommand() should have passed "Signal: xx&":
-  while (p.available()) {
-    int result = p.parseInt();  
-    Serial.println(result);
-    if (result == 0) {
-       Serial.println('coucou');
-      digitalWrite(ledPin, HIGH);
-        //monServo.write(0);
-         delay(2000);  // wait 5 seconds before you do it again
-        
-        //monServo.write(180);
-        delay(2000);  // wait 5 seconds before you do it again
-        //monServo.write(0);
-    }else {
-      //monServo.write(0);
-    }
-      
+  // if there are incoming bytes available
+  // from the server, read them and print them:
+  while (client.available()) {
+    char c = client.read();
+    res = res + c;
+ 
+  }
+   SerialUSB.print(res.substring(0,3));
+   if (res.substring(0,3) == "cou") {
+    SerialUSB.print("yes");
+    digitalWrite(13, LOW);
+    monServo.write(10);
     
-    //monServo.write(result);
+   }else {
+     monServo.write(90);
+   }
+   res = "";
   
-  } 
-  delay(1000);  // wait 5 seconds before you do it again
+  SerialUSB.flush();
+
+  delay(2000);
 }
