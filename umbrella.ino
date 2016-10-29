@@ -42,7 +42,7 @@ void loop() {
   HttpClient client;
 
   // Make a HTTP request:
-  client.get("http://mathemagie.net/asciilogo.txt");
+  client.get("http://mathemagie.net/little_umbrella/index2.php?city=paris");
 
   // if there are incoming bytes available
   // from the server, read them and print them:
@@ -51,18 +51,16 @@ void loop() {
     res = res + c;
  
   }
-   SerialUSB.print(res.substring(0,3));
-   if (res.substring(0,3) == "cou") {
-    SerialUSB.print("yes");
-    digitalWrite(13, LOW);
+   SerialUSB.println(res);
+   if (res.substring(0,3) == "fer") {
     monServo.write(10);
     
    }else {
-     monServo.write(90);
+     monServo.write(80);
    }
    res = "";
   
   SerialUSB.flush();
 
-  delay(2000);
+  delay(3000);
 }
